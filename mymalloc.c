@@ -5,7 +5,7 @@
 #include "mymalloc.h"
 
 #define MEMSIZE 4096
-#define KEY 42069
+#define INITFLAG 7421
 
 static char memory[MEMSIZE];
 
@@ -27,20 +27,20 @@ bool isChunkFree(void *start){
 }
 
 void initializeMemory(){
-    unsigned short *start = (unsigned short *) memory;
-    if(*start != KEY){
+    short *memPtr = (short *) memory;
+    if(*memPtr != INITFLAG){
         memset((void *)memory, 0, MEMSIZE);
-        *start = KEY; //using a key to determine if the memory array has been initialized before using the memory
-        char *metaDataStart = (char *) memory + sizeof(unsigned short);
-        char *end = (char *) memory + MEMSIZE;
-        short chunkSize = -(end - metaDataStart - sizeof(short));
+        *memPtr = INITFLAG; //using a flag to determine if the memory array has been initialized before using the memory
+        char *metaDataPtr = (char *) memory + sizeof(short);
+        char *memEndPtr = (char *) memory + MEMSIZE;
+        short chunkSize = -(memEndPtr - metaDataPtr - sizeof(short));
         //printf("%d", chunkSize);
-        insertMetaData((void *)metaDataStart, chunkSize);
+        insertMetaData((void *)metaDataPtr, chunkSize);
     }
 }
 
 void *mymalloc(size_t size, char *file, int line){
-
+    initializeMemory();
     return NULL;
 }
 
