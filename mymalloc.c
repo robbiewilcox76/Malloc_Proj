@@ -51,7 +51,7 @@ void *nextMetaData(void *memPtr){ //returns address of next chunk's metadata giv
     if(chunkSize < 0) {
         chunkSize *= -1;
     }
-    nextChunkMetaData += (2*chunkSize) + 2;
+    nextChunkMetaData += (chunkSize) + 1;
     if(memEnd > nextChunkMetaData) {
         return nextChunkMetaData;
     }
@@ -98,8 +98,8 @@ void *mymalloc(size_t size, char *file, int line){
     }
     short oldblock = *chunkFinder;
     *chunkFinder = (short)-size;
-    if(*(2+chunkFinder+(2*size)) == 0) {
-        *(2+chunkFinder+(2*size)) = (short)(oldblock-size-2);
+    if(*(1+chunkFinder+(size)) == 0) {
+        *(1+chunkFinder+(size)) = (short)(oldblock-size-2);
     }
     return chunkFinder;
 }
@@ -116,7 +116,7 @@ int main(int argc, char **argv){
 
     //prints array
     short* ptr = (short*)memory;
-    for(int i=0; i<4080; i+=2) {printf("|%d| ", *ptr); ptr+=2;}
+    for(int i=0; i<4080; i+=1) {printf(" |%d| ", *ptr); ptr+=1;}
 
     //just printing them so i dont get an unused variable error
     printf("\n%d",*x);
