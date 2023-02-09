@@ -16,6 +16,7 @@ void insertMetaData(void *memPtr, short chunkSize){
 
 short getChunkSize(void *memPtr){
     short *chunkSize = (short *) memPtr;
+    //printf("%p", memPtr);
     return *chunkSize;
 }
 
@@ -33,7 +34,7 @@ void initializeMemory(){
         char *metaDataPtr = memory;
         char *memEndPtr = memory + MEMSIZE;
         short chunkSize = (memEndPtr - metaDataPtr - sizeof(short));
-        //printf("%d", chunkSize);
+       // printf("%d", chunkSize);
         insertMetaData(metaDataPtr, chunkSize);
     }
 }
@@ -44,14 +45,14 @@ void *firstMetaData(){
 }
 
 void *nextMetaData(void *memPtr){ //returns address of next chunk's metadata given a starting chunk, NULL if there are no more chunks
-    char *nextChunkMetaData = memPtr;
-    char *memEnd = memory + MEMSIZE;
+    short *nextChunkMetaData = memPtr;
+    short *memEnd = (short*)memory + MEMSIZE;
     short chunkSize = getChunkSize(memPtr);
-    if(chunkSize < 0){
+    if(chunkSize < 0) {
         chunkSize *= -1;
     }
-    nextChunkMetaData += chunkSize + sizeof(short);
-    if(memEnd > nextChunkMetaData){
+    nextChunkMetaData += (2*chunkSize) + 2;
+    if(memEnd > nextChunkMetaData) {
         return nextChunkMetaData;
     }
     return NULL;
@@ -78,16 +79,50 @@ bool completePointer(void *memPtr){ //checks if a given pointer is complete(If i
     return false;
 }
 
+void memError(char* file, int line, int error) {
+    //0 = not enough space, 1 = double-free, 2 = bad pointer
+    //printf("%s", file);
+    switch(error) {
+        case(0): {printf("ERROR: Not enough available space"); return;}
+        case(1): {printf("ERROR: Double free"); return;}
+        case(2): {printf("ERROR: Pointer not allocated/bad pointer"); return;}
+    }
+}
+
 void *mymalloc(size_t size, char *file, int line){
     initializeMemory();
-    return NULL;
+    short* chunkFinder = firstMetaData();  //pointer to first chunk
+    while(!isChunkFree(chunkFinder) || *chunkFinder < size) {
+        chunkFinder = nextMetaData(chunkFinder);
+        if(chunkFinder == NULL) {/*need to throw error;*/ return NULL;} 
+    }
+    short oldblock = *chunkFinder;
+    *chunkFinder = (short)-size;
+    if(*(2+chunkFinder+(2*size)) == 0) {
+        *(2+chunkFinder+(2*size)) = (short)(oldblock-size-2);
+    }
+    return chunkFinder;
 }
 
-void myfree(void *ptr, char *file, int line){
-
-}
+void myfree(void *ptr, char *file, int line) {}
 
 int main(int argc, char **argv){
-    //initializeMemory();
+    initializeMemory();
+    char* x = mymalloc(9, "hi", 3);
+    char* y = mymalloc(6, "hello", 4);
+    char* z = mymalloc(4, "hi", 3);
+    char* q = mymalloc(12, "hello", 4);
+    char* m = mymalloc(63, "hey," , 9);
+
+    //prints array
+    short* ptr = (short*)memory;
+    for(int i=0; i<4080; i+=2) {printf("|%d| ", *ptr); ptr+=2;}
+
+    //just printing them so i dont get an unused variable error
+    printf("\n%d",*x);
+    printf("\n%d",*y);
+    printf("\n%d",*z);
+    printf("\n%d",*q);
+    printf("\n%d",*m);
     return EXIT_SUCCESS;
 }
