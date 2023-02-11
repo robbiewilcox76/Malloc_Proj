@@ -82,7 +82,8 @@ void memError(char* file, int line, int error) {
     switch(error) {
         case(0): {printf("\nERROR: Not enough available space! Malloc called in %s on line %d\n", file, line); return;}
         case(1): {printf("\nERROR: Double free! Free called in %s on line %d\n", file, line); return;}
-        case(2): {printf("\nERROR: Pointer not allocated/bad pointer! Free called in %s on line %d\n", file, line); return;}
+        case(2): {printf("\nERROR: Pointer not allocated by malloc! Free called in %s on line %d\n", file, line); return;}
+        case(3): {printf("\nERROR: Bad pointer! Free called in %s on line %d\n", file, line); return;}
     }
 }
 
@@ -113,8 +114,12 @@ void *mymalloc(size_t size, char *file, int line){
 }
 
 void myfree(void *ptr, char *file, int line) {
-    if(!validPointer(ptr) || !completePointer(ptr)){ //if pointer is not from malloc and if it doesn't point to the correct position of memory chunk
+    if(!validPointer(ptr)){ //if pointer is not from malloc
         memError(file, line, 2);
+        return;
+    }
+    if(!completePointer(ptr)){ //if pointer doesn't point to correct position
+        memError(file, line, 3);
         return;
     }
     if(isChunkFree(ptr - sizeof(short))){ //if pointer is valid, need to subtract sizeof(short) to get the metadata and determine if free or not
