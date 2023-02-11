@@ -16,7 +16,6 @@ void insertMetaData(void *memPtr, short chunkSize){
 
 short getChunkSize(void *memPtr){
     short *chunkSize = memPtr;
-    //printf("%p", memPtr);
     return *chunkSize;
 }
 
@@ -33,20 +32,18 @@ void initializeMemory(){
         memset(memory, 0, MEMSIZE);
         char *metaDataPtr = memory;
         char *memEndPtr = memory + MEMSIZE;
-        short chunkSize = (memEndPtr - metaDataPtr - sizeof(short) - 1);
-       // printf("%d", chunkSize);
+        short chunkSize = (memEndPtr - metaDataPtr - sizeof(short));
         insertMetaData(metaDataPtr, chunkSize);
     }
 }
 
 void *getFirstChunk(){
-    char *memPtr = memory;
-    return memPtr; //returns address of first memory chunk's metadata
+    return memory; //returns address of first memory chunk's metadata
 }
 
 void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata given a starting chunk, NULL if there are no more chunks
-    char *nextChunk = memPtr;
-    char *memEnd = memory + MEMSIZE;
+    void *nextChunk = memPtr;
+    void *memEnd = memory + MEMSIZE;
     short chunkSize = getChunkSize(memPtr);
     if(chunkSize < 0) {
         chunkSize *= -1;
@@ -59,16 +56,16 @@ void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata giv
 }
 
 bool validPointer(void *memPtr){ //checks if a given pointer is within the bounds of the memory array
-    char *memStart = getFirstChunk();
-    char *memEnd = memory + MEMSIZE;
-    char *ptr = memPtr;
+    void *memStart = getFirstChunk();
+    void *memEnd = memory + MEMSIZE;
+    void *ptr = memPtr;
     if(ptr >= memStart && ptr < memEnd){
         return true;
     }
     return false;
 }
 
-bool completePointer(void *memPtr){ //checks if a given pointer is complete(If it correctly points to the beginning of the memory chunk (its metadata) and not somewhere in between)
+bool completePointer(void *memPtr){ //checks if a given pointer is complete(If it correctly points to the beginning of the memory chunk (its payload) and not somewhere in between)
     void *metaData = getFirstChunk();
     while(metaData != NULL){
         if(memPtr - sizeof(short) == metaData){
@@ -91,10 +88,11 @@ void memError(char* file, int line, int error) {
 
 void *mymalloc(size_t size, char *file, int line){
     initializeMemory();
-    void* chunkFinder = getFirstChunk();  //pointer to first chunk
-    while(chunkFinder != NULL){
-        short chunkSize = getChunkSize(chunkFinder);
-        if(isChunkFree(chunkFinder) && chunkSize >= size){
+    void* chunkFinder = getFirstChunk(); //pointer to first chunk
+    short currentChunkSize = 0; 
+    while(chunkFinder != NULL){ //iterating through each memory chunk to find free chunk with enough space
+        currentChunkSize = getChunkSize(chunkFinder);
+        if(isChunkFree(chunkFinder) && (currentChunkSize >= size)){ //if current chunk is free and has atleast enough space
             break;
         }
         chunkFinder = getNextChunk(chunkFinder);
@@ -103,33 +101,34 @@ void *mymalloc(size_t size, char *file, int line){
         memError(file, line, 0);
         return NULL;
     }
-    short chunkSize = getChunkSize(chunkFinder);
-    if((chunkSize - (short)size - sizeof(short)) <= 0){
-        insertMetaData(chunkFinder, -(chunkSize));
+    short bytesRemaining = (currentChunkSize - sizeof(short) - (short)size); 
+    if(bytesRemaining <= 0){ //if free chunk is last chunk in memory
+        insertMetaData(chunkFinder, -(bytesRemaining)); //negative chunk size to indicate it is in use
         return chunkFinder;
     }
-    insertMetaData(chunkFinder, -(short)size);
-    insertMetaData((getNextChunk(chunkFinder)), (chunkSize - (short)size - sizeof(short)));
-    return chunkFinder + sizeof(short);
+    //free chunk is not last chunk, therefore we need to allocate current chunk and create a new free chunk after it with the remaining amount of memory
+    insertMetaData(chunkFinder, -((short)size));
+    insertMetaData(getNextChunk(chunkFinder), bytesRemaining);
+    return chunkFinder + sizeof(short); //need to return pointer to the payload of the chunk and not the metadata
 }
 
 void myfree(void *ptr, char *file, int line) {
-    if(!validPointer(ptr) || !completePointer(ptr)){
+    if(!validPointer(ptr) || !completePointer(ptr)){ //if pointer is not from malloc and if it doesn't point to the correct position of memory chunk
         memError(file, line, 2);
         return;
     }
-    if(isChunkFree(ptr - sizeof(short))){
+    if(isChunkFree(ptr - sizeof(short))){ //if pointer is valid, need to subtract sizeof(short) to get the metadata and determine if free or not
         memError(file, line, 1);
         return;
     }
     short chunkSize = getChunkSize(ptr - sizeof(short));
     insertMetaData(ptr - sizeof(short), -(chunkSize));
-    //need to check if free chunks can coalesce with other free chunks
+    //need to check if adjacent free chunks can coalesce
     void *currentChunk = getFirstChunk();
     void *nextChunk = getNextChunk(currentChunk);
-    while(currentChunk != NULL && nextChunk != NULL){
-        if(isChunkFree(currentChunk) && isChunkFree(nextChunk)){
-            insertMetaData(currentChunk, getChunkSize(currentChunk) + getChunkSize(nextChunk) + sizeof(short));
+    while(currentChunk != NULL && nextChunk != NULL){ //iterating through chunks to coalesce adjacent free chunks
+        if(isChunkFree(currentChunk) && isChunkFree(nextChunk)){ //if adjacent chunks are free
+            insertMetaData(currentChunk, getChunkSize(currentChunk) + getChunkSize(nextChunk) + sizeof(short)); //coalescing adjacent free chunks by combining first chunk's size with the second chunk's size plus the size of its metadata
             nextChunk = getNextChunk(currentChunk);
         }
         else{
@@ -138,28 +137,3 @@ void myfree(void *ptr, char *file, int line) {
         }
     }
 }
-
-//int main(int argc, char **argv){
-    //char* x = malloc(9);
-    /*strcpy(x, "abc");
-    char* y = malloc(6);
-    char* z = malloc(4);
-    char* q = malloc(12);
-    char* m = malloc(63);
-    free(x);
-    free(y);
-    free(z);
-    free(q);
-    free(m);
-    free(x);
-    int xyz = 0;
-    free(&xyz);
-
-     short *p = (short *)getFirstChunk(); //checking if the size of allocated chunks are correct
-     while(p != NULL){
-         printf("\n%d", *p);
-         p = getNextChunk(p);
-     }
-*/
-    //return EXIT_SUCCESS;
-//}
