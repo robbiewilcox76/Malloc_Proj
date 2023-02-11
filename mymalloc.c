@@ -33,7 +33,7 @@ void initializeMemory(){
         memset(memory, 0, MEMSIZE);
         char *metaDataPtr = memory;
         char *memEndPtr = memory + MEMSIZE;
-        short chunkSize = (memEndPtr - metaDataPtr - sizeof(short));
+        short chunkSize = (memEndPtr - metaDataPtr - sizeof(short) - 1);
        // printf("%d", chunkSize);
         insertMetaData(metaDataPtr, chunkSize);
     }
@@ -83,9 +83,9 @@ void memError(char* file, int line, int error) {
     //0 = not enough space, 1 = double-free, 2 = bad pointer
     //printf("%s", file);
     switch(error) {
-        case(0): {printf("ERROR: Not enough available space! Malloc called in %s on line %d ", file, line); return;}
-        case(1): {printf("ERROR: Double free! Free called in %s on line %d ", file, line); return;}
-        case(2): {printf("ERROR: Pointer not allocated/bad pointer! Free called in %s on line %d ", file, line); return;}
+        case(0): {printf("\nERROR: Not enough available space! Malloc called in %s on line %d\n", file, line); return;}
+        case(1): {printf("\nERROR: Double free! Free called in %s on line %d\n", file, line); return;}
+        case(2): {printf("\nERROR: Pointer not allocated/bad pointer! Free called in %s on line %d\n", file, line); return;}
     }
 }
 
@@ -139,9 +139,9 @@ void myfree(void *ptr, char *file, int line) {
     }
 }
 
-int main(int argc, char **argv){
-    char* x = malloc(9);
-    strcpy(x, "abc");
+//int main(int argc, char **argv){
+    //char* x = malloc(9);
+    /*strcpy(x, "abc");
     char* y = malloc(6);
     char* z = malloc(4);
     char* q = malloc(12);
@@ -155,26 +155,11 @@ int main(int argc, char **argv){
     int xyz = 0;
     free(&xyz);
 
-    //prints array
-    short* ptr = (short*)memory;
-    for(int i=0; i<4080; i+=1) {printf(" |%d| ", *ptr); ptr+=1;}
-
-    //just printing them so i dont get an unused variable error
-    //printf("\n%d",*x);
-    //printf("\n%d",*y);
-    //printf("\n%d",*z);
-    //printf("\n%d",*q);
-    //printf("\n%d",*m);
-
-    //   for(int i = 0; i < 4096; i ++){ //just checking if we can print every byte of the array
-    //       printf("|%d| ", memory[i]);
-    //   }
-
      short *p = (short *)getFirstChunk(); //checking if the size of allocated chunks are correct
      while(p != NULL){
          printf("\n%d", *p);
          p = getNextChunk(p);
      }
-
-    return EXIT_SUCCESS;
-}
+*/
+    //return EXIT_SUCCESS;
+//}
