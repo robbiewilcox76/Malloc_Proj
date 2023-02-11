@@ -87,6 +87,21 @@ void memError(char* file, int line, int error) {
     }
 }
 
+void printMemory(){
+    short *ptr = (short *)memory;
+    for(int i = 0; i < 4080; i++){
+        printf(" |%d| ", *ptr); ptr+=1;
+    }
+}
+
+void printChunkSizes(){
+    short *ptr = (short *)getFirstChunk();
+    while(ptr != NULL){
+        printf(" |%d| ", *ptr);
+        ptr = getNextChunk(ptr);
+    }
+}
+
 void *mymalloc(size_t size, char *file, int line){
     initializeMemory();
     void* chunkFinder = getFirstChunk(); //pointer to first chunk
@@ -102,10 +117,10 @@ void *mymalloc(size_t size, char *file, int line){
         memError(file, line, 0);
         return NULL;
     }
-    short bytesRemaining = (currentChunkSize - sizeof(short) - (short)size); 
+    short bytesRemaining = (currentChunkSize - sizeof(short) - size); 
     if(bytesRemaining <= 0){ //if free chunk is last chunk in memory
         insertMetaData(chunkFinder, -(bytesRemaining)); //negative chunk size to indicate it is in use
-        return chunkFinder;
+        return chunkFinder + sizeof(short);
     }
     //free chunk is not last chunk, therefore we need to allocate current chunk and create a new free chunk after it with the remaining amount of memory
     insertMetaData(chunkFinder, -((short)size));
