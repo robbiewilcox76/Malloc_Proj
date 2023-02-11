@@ -94,9 +94,6 @@ void *mymalloc(size_t size, char *file, int line){
     void* chunkFinder = getFirstChunk();  //pointer to first chunk
     while(chunkFinder != NULL){
         short chunkSize = getChunkSize(chunkFinder);
-        if(chunkSize < 0){
-            chunkSize *= -1;
-        }
         if(isChunkFree(chunkFinder) && chunkSize >= size){
             break;
         }
@@ -107,16 +104,12 @@ void *mymalloc(size_t size, char *file, int line){
         return NULL;
     }
     short chunkSize = getChunkSize(chunkFinder);
-    if(chunkSize < 0){
-        chunkSize *= -1;
-    }
-    short remainingMemory = (chunkSize - (short)size - sizeof(short));
-    if(remainingMemory <= 0){
+    if((chunkSize - (short)size - sizeof(short)) <= 0){
         insertMetaData(chunkFinder, -(chunkSize));
         return chunkFinder;
     }
     insertMetaData(chunkFinder, -(short)size);
-    insertMetaData((getNextChunk(chunkFinder)), remainingMemory);
+    insertMetaData((getNextChunk(chunkFinder)), (chunkSize - (short)size - sizeof(short)));
     return chunkFinder + sizeof(short);
 }
 
