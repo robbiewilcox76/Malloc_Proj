@@ -51,11 +51,11 @@ void task5(){ //need to design our own test
 int main(int argc, char **argv){
     //task1();
     //task2();
-    //task3();
+    task3();
     char *x = malloc(1);
     char *y = malloc(1);
     free(x);
-    char *z = malloc(1);  //why is this a problem? calling malloc here causes line 59 to fail even though the pointer is correct
+    char *z = malloc(1); 
     free(y);
     free(z);
     return EXIT_SUCCESS;

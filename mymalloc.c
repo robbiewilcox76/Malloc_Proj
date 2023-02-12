@@ -48,7 +48,7 @@ void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata giv
     if(chunkSize < 0) {
         chunkSize *= -1;
     }
-    nextChunk += chunkSize + sizeof(short);
+    nextChunk += (chunkSize + sizeof(short));
     if(memEnd > nextChunk) {
         return nextChunk;
     }
@@ -119,7 +119,7 @@ void *mymalloc(size_t size, char *file, int line){
     }
     short bytesRemaining = (currentChunkSize - sizeof(short) - size); 
     if(bytesRemaining <= 0){ //if free chunk is last chunk in memory
-        insertMetaData(chunkFinder, -(bytesRemaining)); //negative chunk size to indicate it is in use
+        insertMetaData(chunkFinder, -(currentChunkSize)); //negative chunk size to indicate it is in use
         return chunkFinder + sizeof(short);
     }
     //free chunk is not last chunk, therefore we need to allocate current chunk and create a new free chunk after it with the remaining amount of memory
