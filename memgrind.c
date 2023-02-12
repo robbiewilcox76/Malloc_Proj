@@ -35,13 +35,21 @@ void task3(){
             }
         }
     }
-    for(int i = freeCount; freeCount != mallocCount; freeCount++){
+    for(int i = freeCount; i != mallocCount; i++){
         free(pointers[i]);
-    }
+   }
 }
 
-void task4(){ //need to design our own test
-
+void task4(){
+    char* x;
+    char* y;
+    for(int i=0; i<400; i++) {
+        int num = (rand() % (2000)) + 10;
+        x = malloc(num);
+        y = malloc(num);
+        free(x);
+        free(y);
+    }
 }
 
 void task5(){ //need to design our own test
@@ -49,14 +57,31 @@ void task5(){ //need to design our own test
 }
 
 int main(int argc, char **argv){
-    //task1();
-    //task2();
+    task1();
+    task2();
     task3();
-    char *x = malloc(1);
-    char *y = malloc(1);
+    task4();
+    //char* x = malloc(11);
+    //char* y = malloc(11);
+    //free(y);
+    //char* z = malloc(10);
+    //free(x);
+    //free(z);
+    /*char *x = malloc(7);
+    //printMemory();
+    strcpy(x, "helloo");
+    printf("%s\n", x);
     free(x);
-    char *z = malloc(1); 
+    char *y = malloc(2);
+    strcpy(y, "h");
+    printf("%s\n", y);
+    //printMemory();
     free(y);
-    free(z);
+    //printMemory();
+    // printMemory();
+    char *z = malloc(2); 
+    strcpy(z, "z");
+    printf("%s", z);
+    free(z);*/
     return EXIT_SUCCESS;
 }

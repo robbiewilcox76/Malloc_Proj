@@ -79,6 +79,7 @@ bool completePointer(void *memPtr){ //checks if a given pointer is complete(If i
 void memError(char* file, int line, int error) {
     //0 = not enough space, 1 = double-free, 2 = bad pointer
     //printf("%s", file);
+    //printMemory();
     switch(error) {
         case(0): {printf("\nERROR: Not enough available space! Malloc called in %s on line %d\n", file, line); return;}
         case(1): {printf("\nERROR: Double free! Free called in %s on line %d\n", file, line); return;}
@@ -88,10 +89,10 @@ void memError(char* file, int line, int error) {
 }
 
 void printMemory(){
-    short *ptr = (short *)memory;
-    for(int i = 0; i < 4080; i++){
-        printf(" |%d| ", *ptr); ptr+=1;
-    }
+    printf("\n");
+    short* ptr = (short*)memory;
+    for(int i=0; i<4080; i+=1) {printf(" |%d| ", (short)*ptr); ptr+=1;}
+    printf("\n");
 }
 
 void printChunkSizes(){
@@ -123,7 +124,9 @@ void *mymalloc(size_t size, char *file, int line){
         return chunkFinder + sizeof(short);
     }
     //free chunk is not last chunk, therefore we need to allocate current chunk and create a new free chunk after it with the remaining amount of memory
-    insertMetaData(chunkFinder, -((short)size));
+    insertMetaData(chunkFinder, (short)-size);
+    //printf("%d ", bytesRemaining);
+    //printMemory();
     insertMetaData(getNextChunk(chunkFinder), bytesRemaining);
     return chunkFinder + sizeof(short); //need to return pointer to the payload of the chunk and not the metadata
 }
@@ -131,14 +134,17 @@ void *mymalloc(size_t size, char *file, int line){
 void myfree(void *ptr, char *file, int line) {
     if(!validPointer(ptr)){ //if pointer is not from malloc
         memError(file, line, 2);
+        //printf("1");
         return;
     }
     if(!completePointer(ptr)){ //if pointer doesn't point to correct position
         memError(file, line, 3);
+        //printf("2");
         return;
     }
     if(isChunkFree(ptr - sizeof(short))){ //if pointer is valid, need to subtract sizeof(short) to get the metadata and determine if free or not
         memError(file, line, 1);
+        //printf("3");
         return;
     }
     short chunkSize = getChunkSize(ptr - sizeof(short));
