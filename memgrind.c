@@ -53,17 +53,16 @@ void task4(){ //allocate all of memory in 30 byte chunks then free them all and 
     free(x);
 }
 
-void task5(){ //randomly choose between allocating variable size chunk or freeing chunk if possible until 120 objects have been allocated
-    char *pointers[120];
+void task5(){ //randomly choose between allocating variable size chunk or freeing chunk if possible until 64 objects have been allocated
+    char *pointers[64];
     int mallocCount = 0;
     int freeCount = 0;
-    while(mallocCount != 120){
+    while(mallocCount != 64){
         int x = rand() % 2;
         if(x == 0){
-            pointers[mallocCount++] = malloc((rand() % 32) + 1);  
+            pointers[mallocCount++] = malloc((rand() % 62) + 1);  
             /*
-            why do we get bad pointer errors 
-            when this random number range increases 
+            why do we get bad pointer errors  
             instead of not enough space errors?
             */
         }

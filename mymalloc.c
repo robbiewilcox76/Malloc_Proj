@@ -119,7 +119,7 @@ void *mymalloc(size_t size, char *file, int line){
         return NULL;
     }
     short bytesRemaining = (currentChunkSize - sizeof(short) - size); 
-    if(bytesRemaining <= 0){ //if free chunk is last chunk in memory
+    if(bytesRemaining <= 0){ //if there are bytes remaining but not enough to allocate another chunk
         insertMetaData(chunkFinder, -(currentChunkSize)); //negative chunk size to indicate it is in use
         return chunkFinder + sizeof(short);
     }
