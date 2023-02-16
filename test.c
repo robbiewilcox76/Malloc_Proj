@@ -60,17 +60,23 @@ int main(int argc, char **argv) {
     // free(z);
     // printChunkSizes();
 
-    char *pointers[15]; //test with 15-20
+    char *pointers[20]; //test with 15-20
     int mallocCount = 0;
     int freeCount = 0;
-    while(mallocCount != 15){ //test with 15-20
+    while(mallocCount != 20){ //test with 15-20
         int x = rand() % 2;
         if(x == 0){
-            pointers[mallocCount++] = malloc((rand() % 200) + 1);  
+            int bytes = (rand() % 200) + 1;
+            printf("Allocating chunk %d of size %d\n", mallocCount + 1, bytes);
+            printChunkSizes();
+            pointers[mallocCount++] = malloc(bytes);
+            printChunkSizes();  
         }
         else{
             if(freeCount != mallocCount){
+                printf("Freeing chunk %d\n", freeCount + 1);
                 free(pointers[freeCount++]);
+                printChunkSizes();
             }
         }
     }

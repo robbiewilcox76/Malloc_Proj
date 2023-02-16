@@ -5,9 +5,8 @@
 #include "mymalloc.h"
 
 #define MEMSIZE 4096
-#define INITFLAG '_'
 
-static char memory[MEMSIZE] = {INITFLAG};
+static char memory[MEMSIZE] = {1, 1};
 
 void insertMetaData(void *memPtr, short chunkSize){
     short *metaData = memPtr;
@@ -28,7 +27,7 @@ bool isChunkFree(void *memPtr){
 
 void initializeMemory(){
     char *memPtr = memory;
-    if(*memPtr == INITFLAG){ //using a flag to determine if the memory array has been initialized before using the memory
+    if(*memPtr == 1 && *(memPtr+1) == 1){ //using a flag to determine if the memory array has been initialized before using the memory
         memset(memory, 0, MEMSIZE);
         char *metaDataPtr = memory;
         char *memEndPtr = memory + MEMSIZE;
@@ -45,6 +44,9 @@ void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata giv
     void *nextChunk = memPtr;
     void *memEnd = memory + MEMSIZE;
     short chunkSize = getChunkSize(memPtr);
+    if(chunkSize == 0){
+        return NULL;
+    }
     if(chunkSize < 0) {
         chunkSize *= -1;
     }
@@ -101,6 +103,7 @@ void printChunkSizes(){
         printf(" |%d| ", *ptr);
         ptr = getNextChunk(ptr);
     }
+    printf("\n");
 }
 
 void *mymalloc(size_t size, char *file, int line){
