@@ -74,13 +74,6 @@ void memError(char* file, int line, int error) {
     }
 }
 
-void printMemory(){
-    printf("\n");
-    short* ptr = (short*)memory;
-    for(int i=0; i<4080; i+=1) {printf(" |%d| ", (short)*ptr); ptr+=1;}
-    printf("\n");
-}
-
 void printChunkSizes(){
     short *ptr = (short *)memory;
     while(ptr != NULL){
