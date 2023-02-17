@@ -25,31 +25,18 @@ int main(int argc, char **argv) {
     we can request allocation for 8 large objects of equal size = 509 bytes, and each object will reserve 511 bytes
     511 * 8 = 4088 -> there will be 6 bytes left over in memory after 8 objects are allocated
     */
-
-    char *a = malloc(509);
-    char *b = malloc(509);
-    char *c = malloc(509);
-    char *d = malloc(509);
-    char *e = malloc(509);
-    char *f = malloc(509);
-    char *g = malloc(509);
-    char *h = malloc(509);
-    memset(a, 1, 509);
-    memset(b, 2, 509);
-    memset(c, 3, 509);
-    memset(d, 4, 509);
-    memset(e, 5, 509);
-    memset(f, 6, 509);
-    memset(g, 7, 509);
-    memset(h, 8, 509);
-    printBytePattern(a, 1);
-    printBytePattern(b, 2);
-    printBytePattern(c, 3);
-    printBytePattern(d, 4);
-    printBytePattern(e, 5);
-    printBytePattern(f, 6);
-    printBytePattern(g, 7);
-    printBytePattern(h, 8);
+    
+    char *pointers[8];
+    int i;
+    for(i = 0; i < 8; i ++){
+        pointers[i] = malloc(509);
+    }
+    for(i = 0; i < 8; i ++){
+        memset(pointers[i], i+1, 509);
+    }
+    for(i = 0; i < 8; i ++){
+        printBytePattern(pointers[i], i+1);
+    }
 
     return EXIT_SUCCESS;
 }

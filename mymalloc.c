@@ -24,23 +24,13 @@ bool isChunkFree(void *memPtr){
 }
 
 void initializeMemory(){
-    char *memPtr = memory;
-    if(*memPtr == 1 && *(memPtr+1) == 2 && *(memPtr+2) == 42 && *(memPtr+3) == 69){ //using first 4 bytes to determine if the memory array has been initialized before using the memory
+    if(*memory == 1 && *(memory+1) == 2 && *(memory+2) == 42 && *(memory+3) == 69){ //using first 4 bytes to determine if the memory array has been initialized before using the memory
         memset(memory, 0, MEMSIZE);
-        char *metaDataPtr = memory;
-        char *memEndPtr = memory + MEMSIZE;
-        short chunkSize = (memEndPtr - metaDataPtr - sizeof(short));
-        insertMetaData(metaDataPtr, chunkSize);
+        insertMetaData(memory, (short) (MEMSIZE - sizeof(short)));
     }
 }
 
-void *getFirstChunk(){
-    return memory; //returns address of first memory chunk's metadata
-}
-
-void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata given a starting chunk, NULL if there are no more chunks
-    void *nextChunk = memPtr;
-    void *memEnd = memory + MEMSIZE;
+void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata given a starting chunk pointer, NULL if there are no more chunks
     short chunkSize = getChunkSize(memPtr);
     if(chunkSize == 0){
         return NULL;
@@ -48,25 +38,23 @@ void *getNextChunk(void *memPtr){ //returns address of next chunk's metadata giv
     if(chunkSize < 0) {
         chunkSize *= -1;
     }
+    void *nextChunk = memPtr;
     nextChunk += (chunkSize + sizeof(short));
-    if(memEnd > nextChunk) {
+    if(((void *)memory + MEMSIZE) > nextChunk) {
         return nextChunk;
     }
     return NULL;
 }
 
 bool validPointer(void *memPtr){ //checks if a given pointer is within the bounds of the memory array
-    void *memStart = getFirstChunk();
-    void *memEnd = memory + MEMSIZE;
-    void *ptr = memPtr;
-    if(ptr >= memStart && ptr < memEnd){
+    if(memPtr >= ((void *)memory) && memPtr < ((void *)memory + MEMSIZE)){
         return true;
     }
     return false;
 }
 
 bool completePointer(void *memPtr){ //checks if a given pointer is complete(If it correctly points to the beginning of the memory chunk (its payload) and not somewhere in between)
-    void *metaData = getFirstChunk();
+    void *metaData = memory;
     while(metaData != NULL){
         if(memPtr - sizeof(short) == metaData){
             return true;
@@ -94,7 +82,7 @@ void printMemory(){
 }
 
 void printChunkSizes(){
-    short *ptr = (short *)getFirstChunk();
+    short *ptr = (short *)memory;
     while(ptr != NULL){
         printf(" |%d| ", *ptr);
         ptr = getNextChunk(ptr);
@@ -104,7 +92,7 @@ void printChunkSizes(){
 
 void *mymalloc(size_t size, char *file, int line){
     initializeMemory();
-    void* chunkFinder = getFirstChunk(); //pointer to first chunk
+    void* chunkFinder = memory; //pointer to first chunk
     short currentChunkSize = 0; 
     while(chunkFinder != NULL){ //iterating through each memory chunk to find free chunk with enough space
         currentChunkSize = getChunkSize(chunkFinder);
@@ -144,7 +132,7 @@ void myfree(void *ptr, char *file, int line) {
     short chunkSize = getChunkSize(ptr - sizeof(short));
     insertMetaData(ptr - sizeof(short), -(chunkSize));
     //need to check if adjacent free chunks can coalesce
-    void *chunkFinder = getFirstChunk();
+    void *chunkFinder = memory;
     void *nextChunkFinder = getNextChunk(chunkFinder);
     while(chunkFinder != NULL && nextChunkFinder != NULL){ //iterating through chunks to coalesce adjacent free chunks
         if(isChunkFree(chunkFinder) && isChunkFree(nextChunkFinder)){ //if adjacent chunks are free
