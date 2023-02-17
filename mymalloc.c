@@ -14,8 +14,7 @@ void insertMetaData(void *memPtr, short chunkSize){
 }
 
 short getChunkSize(void *memPtr){
-    short *chunkSize = memPtr;
-    return *chunkSize;
+    return *(short*)memPtr;
 }
 
 bool isChunkFree(void *memPtr){
