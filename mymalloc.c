@@ -9,8 +9,7 @@
 static char memory[MEMSIZE] = {1, 2, 42, 69};
 
 void insertMetaData(void *memPtr, short chunkSize){
-    short *metaData = memPtr;
-    *metaData = chunkSize;
+    *(short*)memPtr = chunkSize;
 }
 
 short getChunkSize(void *memPtr){
