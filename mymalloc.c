@@ -6,7 +6,7 @@
 
 #define MEMSIZE 4096
 
-static char memory[MEMSIZE] = {1, 1};
+static char memory[MEMSIZE] = {1, 2, 42, 69};
 
 void insertMetaData(void *memPtr, short chunkSize){
     short *metaData = memPtr;
@@ -27,7 +27,7 @@ bool isChunkFree(void *memPtr){
 
 void initializeMemory(){
     char *memPtr = memory;
-    if(*memPtr == 1 && *(memPtr+1) == 1){ //using a flag to determine if the memory array has been initialized before using the memory
+    if(*memPtr == 1 && *(memPtr+1) == 2 && *(memPtr+2) == 42 && *(memPtr+3) == 69){ //using first 4 bytes to determine if the memory array has been initialized before using the memory
         memset(memory, 0, MEMSIZE);
         char *metaDataPtr = memory;
         char *memEndPtr = memory + MEMSIZE;
@@ -79,9 +79,7 @@ bool completePointer(void *memPtr){ //checks if a given pointer is complete(If i
 }
 
 void memError(char* file, int line, int error) {
-    //0 = not enough space, 1 = double-free, 2 = bad pointer
-    //printf("%s", file);
-    //printMemory();
+    //0 = not enough space, 1 = double-free, 2 & 3 = bad pointer
     switch(error) {
         case(0): {printf("\nERROR: Not enough available space! Malloc called in %s on line %d\n", file, line); return;}
         case(1): {printf("\nERROR: Double free! Free called in %s on line %d\n", file, line); return;}
@@ -128,8 +126,6 @@ void *mymalloc(size_t size, char *file, int line){
     }
     //free chunk is not last chunk, therefore we need to allocate current chunk and create a new free chunk after it with the remaining amount of memory
     insertMetaData(chunkFinder, (short)-size);
-    //printf("%d ", bytesRemaining);
-    //printMemory();
     insertMetaData(getNextChunk(chunkFinder), bytesRemaining);
     return chunkFinder + sizeof(short); //need to return pointer to the payload of the chunk and not the metadata
 }
@@ -137,32 +133,29 @@ void *mymalloc(size_t size, char *file, int line){
 void myfree(void *ptr, char *file, int line) {
     if(!validPointer(ptr)){ //if pointer is not from malloc
         memError(file, line, 2);
-        //printf("1");
         return;
     }
     if(!completePointer(ptr)){ //if pointer doesn't point to correct position
         memError(file, line, 3);
-        //printf("2");
         return;
     }
     if(isChunkFree(ptr - sizeof(short))){ //if pointer is valid, need to subtract sizeof(short) to get the metadata and determine if free or not
         memError(file, line, 1);
-        //printf("3");
         return;
     }
     short chunkSize = getChunkSize(ptr - sizeof(short));
     insertMetaData(ptr - sizeof(short), -(chunkSize));
     //need to check if adjacent free chunks can coalesce
-    void *currentChunk = getFirstChunk();
-    void *nextChunk = getNextChunk(currentChunk);
-    while(currentChunk != NULL && nextChunk != NULL){ //iterating through chunks to coalesce adjacent free chunks
-        if(isChunkFree(currentChunk) && isChunkFree(nextChunk)){ //if adjacent chunks are free
-            insertMetaData(currentChunk, getChunkSize(currentChunk) + getChunkSize(nextChunk) + sizeof(short)); //coalescing adjacent free chunks by combining first chunk's size with the second chunk's size plus the size of its metadata
-            nextChunk = getNextChunk(currentChunk);
+    void *chunkFinder = getFirstChunk();
+    void *nextChunkFinder = getNextChunk(chunkFinder);
+    while(chunkFinder != NULL && nextChunkFinder != NULL){ //iterating through chunks to coalesce adjacent free chunks
+        if(isChunkFree(chunkFinder) && isChunkFree(nextChunkFinder)){ //if adjacent chunks are free
+            insertMetaData(chunkFinder, getChunkSize(chunkFinder) + getChunkSize(nextChunkFinder) + sizeof(short)); //coalescing adjacent free chunks by combining first chunk's size with the second chunk's size plus the size of its metadata
+            nextChunkFinder = getNextChunk(chunkFinder);
         }
         else{
-            currentChunk = nextChunk;
-            nextChunk = getNextChunk(currentChunk);
+            chunkFinder = nextChunkFinder;
+            nextChunkFinder = getNextChunk(chunkFinder);
         }
     }
 }

@@ -61,10 +61,6 @@ void task5(){ //randomly choose between allocating variable size chunk or freein
         int x = rand() % 2;
         if(x == 0){
             pointers[mallocCount++] = malloc((rand() % 62) + 1);  
-            /*
-            why do we get bad pointer errors  
-            instead of not enough space errors?
-            */
         }
         else{
             if(freeCount != mallocCount){
