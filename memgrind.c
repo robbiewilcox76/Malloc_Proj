@@ -73,32 +73,41 @@ void task5(){ //randomly choose between allocating variable size chunk or freein
     }
 }
 
+void calculateTime(struct timeval start, struct timeval end, double currentTimes[], int pos, int task){
+    gettimeofday(&start, NULL);
+    switch(task){
+        case 1:
+            task1();
+            break;
+        case 2:
+            task2();
+            break;
+        case 3:
+            task3();
+            break;
+        case 4:
+            task4();
+            break;
+        case 5:
+            task5();
+            break;
+        default:
+            task1();
+            break;
+    }
+    gettimeofday(&end, NULL);
+    currentTimes[pos] = ((end.tv_sec * 1000000 + end.tv_usec * 1000000) - (start.tv_sec * 1000000 + start.tv_usec * 1000000));
+}
+
 int main(int argc, char **argv){
     double totalTimes[5] = {0, 0, 0, 0, 0};
     double currentTimes[5] = {0, 0, 0, 0, 0};
     struct timeval start, end;
     for(int i = 0; i < 50; i ++){
         printf("Iteration %d:\n", i+1);
-        gettimeofday(&start, NULL);
-        task1();
-        gettimeofday(&end, NULL);
-        currentTimes[0] = ((end.tv_sec * 1000000 + end.tv_usec * 1000000) - (start.tv_sec * 1000000 + start.tv_usec * 1000000));
-        gettimeofday(&start, NULL);
-        task2();
-        gettimeofday(&end, NULL);
-        currentTimes[1] = ((end.tv_sec * 1000000 + end.tv_usec * 1000000) - (start.tv_sec * 1000000 + start.tv_usec * 1000000));
-        gettimeofday(&start, NULL);
-        task3();
-        gettimeofday(&end, NULL);
-        currentTimes[2] = ((end.tv_sec * 1000000 + end.tv_usec * 1000000) - (start.tv_sec * 1000000 + start.tv_usec * 1000000));
-        gettimeofday(&start, NULL);
-        task4();
-        gettimeofday(&end, NULL);
-        currentTimes[3] = ((end.tv_sec * 1000000 + end.tv_usec * 1000000) - (start.tv_sec * 1000000 + start.tv_usec * 1000000));
-        gettimeofday(&start, NULL);
-        task5();
-        gettimeofday(&end, NULL);
-        currentTimes[4] = ((end.tv_sec * 1000000 + end.tv_usec * 1000000) - (start.tv_sec * 1000000 + start.tv_usec * 1000000));
+        for(int k = 0; k < 5; k ++){
+            calculateTime(start, end, currentTimes, k, k + 1);
+        }
         for(int j = 0; j < 5; j ++){
             totalTimes[j] += currentTimes[j];
             printf("Time spent on task %d: %lf microseconds\n", j+1, currentTimes[j]);
