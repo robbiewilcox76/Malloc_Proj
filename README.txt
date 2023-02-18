@@ -1,6 +1,6 @@
 Sean Patrick (smp429) & Fulton Wilcox (frw14)
 
-Project I: My little malloc()
+CS214 Systems Programming Project I: My little malloc()
 
 Implementation Description:
 
