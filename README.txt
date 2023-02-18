@@ -22,13 +22,27 @@ We have also thoroughly commented our implementation to make it easier to unders
 
 Helper functions:
 void insertMetaData(void *memPtr, short chunkSize);
+  -takes void pointer to metadata in memory array and short int representing chunk size parameters, casts the pointer to a short pointer, 
+  and then inserts the short int chunk size at the address of the 2 bytes
 short getChunkSize(void *memPtr);
+  -takes void pointer to metadata in memory array parameter, casts to short int, then reads the 2 bytes at the address as a short int, and returns that short int
 bool isChunkFree(void *memPtr);
+  -takes void pointer to metadata in memory array parameter, reads data at address as short int, returns true if short int is positive (chunk is free)
+  or false if short int is negative (chunk is in-use)
 void initializeMemory();
+  -initializes all bytes in the memory array to 0 during the very first call to malloc(), and inserts appropriate metadata in the first 2 bytes
 void *getNextChunk(void *memPtr);
+  -takes void pointer to a chunk's metadata in memory array parameter, then copies that address to another pointer,
+  then adds the current chunk size + sizeof(short) to the pointer, then returns the pointer which will contain address of the next chunk's metadata
 bool validPointer(void *memPtr);
+  -takes void pointer to some address parameter, then checks if the address is within the bounds of the addresses of each byte of the memory array,
+  returns true if it is and false otherwise
 bool completePointer(void *memPtr);
+  -takes void pointer to some address parameter, then checks if the pointer is the correct address which will be the first byte of the payload of the memory chunk
+  by subtracting sizeof(short) from the pointer and checking if the new pointer points to the metadata of the memory chunk 
 void memError(char* file, int line, int error);
+  -prints descriptive error message determined by the the integer "error" parameter, indicating what error occurred, and in which file on which line it occurred
 void printChunkSizes();
+  -iterates through each chunk of the memory array, printing each short integer representation of the metadata (chunk size). Was very useful for correctness testing.
 
 Test Plan:
