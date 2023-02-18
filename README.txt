@@ -45,4 +45,14 @@ void memError(char* file, int line, int error);
 void printChunkSizes();
   -iterates through each chunk of the memory array, printing each short integer representation of the metadata (chunk size). Was very useful for correctness testing.
 
+mymalloc:
+
+
+myfree:
+
+
 Test Plan:
+
+memgrind:
+
+test:
