@@ -71,6 +71,7 @@ void memError(char* file, int line, int error) {
         case(1): {printf("\nERROR: Double free! Free called in %s on line %d\n", file, line); return;}
         case(2): {printf("\nERROR: Pointer not allocated by malloc! Free called in %s on line %d\n", file, line); return;}
         case(3): {printf("\nERROR: Bad pointer! Free called in %s on line %d\n", file, line); return;}
+        case(4): {printf("\nERROR: Invalid size! Malloc called in %s on line %d\n", file, line); return;}
     }
 }
 
@@ -84,6 +85,10 @@ void printChunkSizes(){
 }
 
 void *mymalloc(size_t size, char *file, int line){
+    if(size <= 0){
+        memError(file, line, 4);
+        return NULL;
+    }
     initializeMemory();
     void* chunkFinder = memory; //pointer to first chunk
     short currentChunkSize = 0; 
