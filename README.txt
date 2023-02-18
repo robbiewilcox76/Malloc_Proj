@@ -16,4 +16,19 @@ To determine if a chunk of memory is in use or not, we will represent the 2 byte
 This strategy utilizes less space than allocating an additional byte or more, for example, to represent whether the chunk is free or not. 
 This way we minimize the amount of extra memory needed for metadata simply by changing the sign of the short integer that represents it.
 
+We have modularized our mymalloc library with various helper functions in order to minimize code repetition and to ensure a user-friendly, 
+descriptive, and readable library that can be easily interpreted. 
+We have also thoroughly commented our implementation to make it easier to understand exactly how it works.
+
+Helper functions:
+void insertMetaData(void *memPtr, short chunkSize);
+short getChunkSize(void *memPtr);
+bool isChunkFree(void *memPtr);
+void initializeMemory();
+void *getNextChunk(void *memPtr);
+bool validPointer(void *memPtr);
+bool completePointer(void *memPtr);
+void memError(char* file, int line, int error);
+void printChunkSizes();
+
 Test Plan:
