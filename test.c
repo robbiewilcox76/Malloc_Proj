@@ -37,6 +37,9 @@ int main(int argc, char **argv) {
     for(i = 0; i < 8; i ++){
         printBytePattern(pointers[i], i+1);
     }
+    for(i = 0; i < 8; i ++){
+        free(pointers[i]);
+    }
 
     return EXIT_SUCCESS;
 }
