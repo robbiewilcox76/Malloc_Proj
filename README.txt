@@ -26,7 +26,7 @@ void insertMetaData(void *memPtr, short chunkSize);
   -takes void pointer to metadata in memory array and short int representing chunk size (parameters), casts the pointer to a short pointer, 
   and then inserts the short int chunk size at the address of the 2 bytes
 short getChunkSize(void *memPtr);
-  -takes void pointer to metadata in memory array (parameter), casts to short int, then reads the 2 bytes at the address as a short int, and returns that short int
+  -takes void pointer to metadata in memory array (parameter), casts to short int pointer, then reads the 2 bytes at the address as a short int, and returns it
 bool isChunkFree(void *memPtr);
   -takes void pointer to metadata in memory array (parameter), reads data at address as short int, returns true if short int is positive (chunk is free)
   or false if short int is negative (chunk is in-use)
@@ -34,13 +34,13 @@ void initializeMemory();
   -initializes all bytes in the memory array to 0 during the very first call to malloc(), and inserts appropriate metadata in the first 2 bytes
 void *getNextChunk(void *memPtr);
   -takes void pointer to a chunk's metadata in memory array (parameter), then copies that address to another pointer,
-  then adds the current chunk size + sizeof(short) to the pointer, then returns the pointer which will contain address of the next chunk's metadata
+  then adds the current chunk size + sizeof(short) to the pointer because that is where the next chunk's metadata will be located, then returns the pointer
 bool validPointer(void *memPtr);
   -takes void pointer to some address (parameter), then checks if the address is within the bounds of the addresses of each byte of the memory array,
   returns true if it is and false otherwise
 bool completePointer(void *memPtr);
-  -takes void pointer to some address (parameter), then checks if the pointer is the correct address which will be the first byte of the payload of the memory chunk
-  by subtracting sizeof(short) from the pointer and checking if the new pointer points to the metadata of the memory chunk 
+  -takes void pointer to some address (parameter), then checks if the pointer is the correct address which will be the first byte of the payload of a memory chunk
+  by subtracting sizeof(short) from the pointer and checking if the new pointer points to the metadata of a memory chunk 
 void memError(char* file, int line, int error);
   -prints descriptive error message determined by the the integer "error" (parameter), indicating what error occurred, and in which file on which line it occurred
 void printChunkSizes();
@@ -114,10 +114,10 @@ memgrind:
       need to coalesce in order for the final larger object allocation to succeed.
     task5(): Randomly chooses between allocating a variable sized object or freeing an object if possible, until 64 objects have been allocated. Then the 
     remaining objects are freed.
-      This task tests performance similarly to all of the other tasks, but the randomness ensures that the sizes of each object are different which can also
-      help prove the correctness of our library because it will reveal if allocating randomly sized objects messes with the structure of the memory array.
+      This task tests performance similarly to all of the other tasks, but the randomness ensures that the sizes of each object are different which can
+      help prove the correctness of our library because it will reveal if the sizes of the chunks and its data remain as requested and expected.
   Our memgrind implementation runs each task 50 times, calculating the time spent on each task and printing that information out, and then finally the average
-  time spent on each task is printed. (microseconds)
+  time spent on each task is printed.
 
 test:
   We have included an additional test program called "test" that takes no arguments and will be compiled and made executable by the same Makefile
@@ -125,6 +125,7 @@ test:
   Then the byte pattern of each object is printed to show whether writing to one object overwrote any of the other objects, and if the byte pattern
   is exactly as expected
   Each object needs to be 509 bytes because that is the maximum possible size in order to fit 8 objects. Each object reserves 2 more bytes than requested because
-  of metadata, and therefore each object will occupy 511 bytes. 511 * 8 = 4088
+  of metadata, and therefore each object will occupy 511 bytes.
   Since there are only 4094 free bytes when the memory array is initialized, we cannot allocate all of memory with 8 objects without having some space remaining
+  8 objects * (509 bytes + 2 bytes) = 4088 bytes
   Each object is filled with a byte pattern according to the order in which the object was allocated (first object will contain 1's, second object will have 2's. etc)
