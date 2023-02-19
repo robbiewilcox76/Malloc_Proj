@@ -1,4 +1,4 @@
-Sean Patrick (smp429) & Fulton Wilcox (frw14)
+Sean M. Patrick (smp429) & Fulton R. Wilcox (frw14)
 
 CS214 Systems Programming Project I: My little malloc()
 
