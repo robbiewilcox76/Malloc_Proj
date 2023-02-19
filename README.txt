@@ -128,3 +128,17 @@ test program implementation:
   Since there are only 4094 free bytes when the memory array is initialized, we cannot allocate all of memory with 8 objects without having some space remaining
   8 objects * (509 bytes + 2 bytes) = 4088 bytes
   Each object is filled with a byte pattern according to the order in which the object was allocated (first object will contain 1's, second object will have 2's. etc)
+
+We were able to prove the correctness of each of the properties (detailed above) of our malloc() library.
+The methods that were most helpful during testing were the methods (3), (5), (8), and (9) as detailed above.
+More specifically, we used our task5() from memgrind in a white-box testing setting, utilizing methods (5) and (9), to debug issues with our implementation which
+resulted in the discovery and correction of various mistakes and bugs.
+Additonally, our extra test program was used in a white-box testing setting, utilizing methods (3) and (8), to debug our implementation as well.
+We tested our implementation thoroughly with many other variations of our programs and other test cases, but these were the testing processes that helped the most.
+
+Design Note:
+Our malloc() library implementation requires that the memory array will not exceed 32769 bytes
+This is because we are representing metadata using short integers, and the maximum value they can hold is 32767
+During the first call to malloc(), 2 bytes (short int) of metadata are reserved, so memory will contain 2 less bytes than the total amount of memory
+Since a short cannot exceed the value 32767, a memory array of size 32769 bytes will result in inserting the value 32767
+within the very first chunk's metadata which will be 2 bytes. 2 bytes can represent numbers from 0 up to the value 32767.
