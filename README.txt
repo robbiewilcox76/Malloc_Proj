@@ -70,6 +70,21 @@ myfree() implementation:
   to the first chunk's metadata. We do this until we have iterated through every chunk of memory, coalescing any adjacent free chunks that we find.
 
 Test Plan:
+  (a) In order for our library to be correct, it must have the following properties:
+      Correctly allocates desired amount of bytes and returns pointer to the first byte of that requested payload
+      Prints appropriate error message when 0 or less bytes were requested or if there is not enough space left to allocate desired bytes
+      Correctly handles bytes reserved for metadata of each chunk of memory, ensuring that each chunk is in its correct place and that the client cannot
+      access the metadata
+      Does not allow a client to access the backing memory array
+      Correctly determines if a chunk is free or not
+      Correctly determines if a pointer is valid or not (allocated by mymalloc() and points to correct address)
+      Correctly manipulates the metadata to indicate whether a chunk is free or not
+      Properly frees a chunk when requested, not manipulating any other chunks in the process
+      Properly coalesces adjacent free chunks when possible
+      If there is memory remaining after malloc() requests bytes but not enough to allocate another chunk, should return entire memory chunk
+      containing some extra memory to client
+  (b) 
+  (c)
 
 memgrind:
 
