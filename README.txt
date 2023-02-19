@@ -60,7 +60,14 @@ mymalloc() implementation:
   after the current chunk which will contain the remaining memory. Then we add sizeof(short) to the chunk pointer to ensure it points to the payload of the chunk.
 
 myfree() implementation:
-
+  First we check if the pointer passed to free() contains a valid address within the memory array and if it correctly points to a chunk's metadata after subtracting
+  sizeof(short) from it.
+  Then we check if the metadata of the chunk is a positive value because that would mean it is a free chunk.
+  If any of that is true, we print the appropriate error message and exit the function.
+  If not, then we make the metadata value of the appropriate chunk positive to indicate that it is free
+  Then we iterate through each chunk of the memory array checking for adjacent free chunks.
+  Whenever we find adjacent free chunks, we coalesce them by adding the value of the second chunk's metadata plus sizeof(short) (to account for metadata)
+  to the first chunk's metadata. We do this until we have iterated through every chunk of memory, coalescing any adjacent free chunks that we find.
 
 Test Plan:
 
