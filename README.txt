@@ -106,6 +106,25 @@ Test Plan:
       (10) Allocate objects in such a way so that the final object allocated will result in 1-2 bytes remaining in memory. Then check to see if that object contains
       those extra bytes and attempt to write and use that data.
 
-memgrind:
+memgrind: 
+  Our memgrind implementation takes no arguments
+  In addition to the 3 tasks detailed in the assignment description, we have designed 2 tasks to test performance that do the following:
+    task4(): Allocates all of memory in 30 byte chunks, frees all of the objects, and then requests allocation of an object larger than 30 bytes
+      This task tests how efficiently the memory chunks are freed and how the freed chunks coalesce. It also tests for correctness because the freed chunks
+      need to coalesce in order for the final larger object allocation to succeed.
+    task5(): Randomly chooses between allocating a variable sized object or freeing an object if possible, until 64 objects have been allocated. Then the 
+    remaining objects are freed.
+      This task tests performance similarly to all of the other tasks, but the randomness ensures that the sizes of each object are different which can also
+      help prove the correctness of our library because it will reveal if allocating randomly sized objects messes with the structure of the memory array.
+  Our memgrind implementation runs each task 50 times, calculating the time spent on each task and printing that information out, and then finally the average
+  time spent on each task is printed. (microseconds)
 
 test:
+  We have included an additional test program called "test" that takes no arguments and will be compiled and made executable by the same Makefile
+  The program allocates 8 equally sized, large objects (509 bytes) and then writes a unique byte pattern to each object
+  Then the byte pattern of each object is printed to show whether writing to one object overwrote any of the other objects, and if the byte pattern
+  is exactly as expected
+  Each object needs to be 509 bytes because that is the maximum possible size in order to fit 8 objects. Each object reserves 2 more bytes than requested because
+  of metadata, and therefore each object will occupy 511 bytes. 511 * 8 = 4088
+  Since there are only 4094 free bytes when the memory array is initialized, we cannot allocate all of memory with 8 objects without having some space remaining
+  Each object is filled with a byte pattern according to the order in which the object was allocated (first object will contain 1's, second object will have 2's. etc)
