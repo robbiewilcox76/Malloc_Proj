@@ -15,6 +15,7 @@ For every subsequent memory allocation, 2 bytes will be reserved to store the me
 To determine if a chunk of memory is in use or not, we will represent the 2 byte (short) metadata as positive (free) or negative (in-use). 
 This strategy utilizes less space than allocating an additional byte or more, for example, to represent whether the chunk is free or not. 
 This way we minimize the amount of extra memory needed for metadata simply by changing the sign of the short integer that represents it.
+This also allows us to iterate through each chunk of memory like a linked list because the metadata value essentially determines where the next chunk is located.
 
 We have modularized our mymalloc library with various helper functions in order to minimize code repetition and to ensure a user-friendly, 
 descriptive, and readable library that can be easily interpreted. 
@@ -45,10 +46,20 @@ void memError(char* file, int line, int error);
 void printChunkSizes();
   -iterates through each chunk of the memory array, printing each short integer representation of the metadata (chunk size). Was very useful for correctness testing.
 
-mymalloc:
+mymalloc() implementation:
+  First we check if the size parameter is 0 or less, and if it is then we print the appropriate error message and return NULL because it does
+  not make sense to allocate 0 or less bytes.
+  Then we check if the memory array needs to be initialized or not and if so, we initialize it.
+  Then we iterate through each chunk of memory until we find a free chunk that is at least as large as the size requested.
+  If no such chunk was found, we print the appropriate error message and return NULL.
+  Then we check if the free chunk can be divided into 2 chunks, one chunk for the requested amount of memory, and another chunk after it with the remaining memory.
+  If there is not enough space to split the chunks, then we insert the appropriate metadata as a negative short int to represent that it is being used,
+  and then we return a pointer to the whole chunk which will contain some extra memory. We add sizeof(short) to the pointer before returning it to ensure
+  that it correctly points to the payload of the chunk and not the metadata.
+  If the chunk could be split, then we insert the appropriate metadata as a negative short int to indicate it is in use, then we create a new free chunk
+  after the current chunk which will contain the remaining memory. Then we add sizeof(short) to the chunk pointer to ensure it points to the payload of the chunk.
 
-
-myfree:
+myfree() implementation:
 
 
 Test Plan:
