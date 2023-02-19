@@ -84,7 +84,27 @@ Test Plan:
       (10) If there is memory remaining after malloc() requests bytes but not enough to allocate another chunk, should return entire memory chunk
       containing some extra memory to client
   Specific methods to test for each property:
-      (1) Allocate several, arbitrarily sized objects 
+      (1) Allocate several, arbitrarily sized objects and check if each byte of each object can be properly written to, and then try using the data of those objects
+      in another context.
+      (2) Purposely attempt to free an already freed object, free an object with a pointer to the wrong address, free an object that was not allocated with malloc(),
+      request to allocate an object that is too large to fit, and attempt to allocate a 0 or less byte object.
+      (3) Allocate several, arbitrarily sized objects and write some data into each memory chunk. In between each malloc() call, iterate through the memory chunks
+      and print each chunk size to see if they were allocated correctly. This will show whether the metadata remains as expected and whether writing to each object
+      effected the metadata or not. (white-box testing)
+      (4) Attempt to reference the memory array directly in some arbitrary black-box test program
+      (5) Allocate several arbitrarily sized objects and then free some at random. Then use the function that checks if a chunk is free or not, passing in the pointer
+      to that chunk. This will show if the function correctly determines which chunks were free or not. (white-box testing)
+      (6) Allocate an arbitrarily sized object and then add 1 to the pointer. Then attempt to free the object with the new pointer. Declare and initialize some
+      arbitrary variable and then call free() with the address of that variable.
+      (7) Allocate an arbitrarily sized object and print the chunk size with the pointer to that object and call the free chunk checker function. Then free the object
+      and print the information again. This will show whether a chunk's metadata is negative or not, and if it is considered free or not. (white-box testing)
+      (8) Allocate several arbitrarily sized objects, write data to each object, and then free one object at random. Then check to see if the data within the other
+      objects have changed or not, and check the metadata of each chunk.
+      (9) Allocate several arbitrarily sized objects and then print the chunk sizes of each chunk. Then randomly choose 2 adjacent chunks to free and print the
+      chunk sizes again. Repeat the process until all objects have been freed. This will show the state of memory and each chunk at each step and whether the chunks
+      are properly coalescing or not. (white-box testing)
+      (10) Allocate objects in such a way so that the final object allocated will result in 1-2 bytes remaining in memory. Then check to see if that object contains
+      those extra bytes and attempt to write and use that data.
 
 memgrind:
 
