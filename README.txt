@@ -17,34 +17,33 @@ This strategy utilizes less space than allocating an additional byte or more, fo
 This way we minimize the amount of extra memory needed for metadata simply by changing the sign of the short integer that represents it.
 This also allows us to iterate through each chunk of memory like a linked list because the metadata value essentially determines where the next chunk is located.
 
-We have modularized our mymalloc library with various helper functions in order to minimize code repetition and to ensure a user-friendly, 
-descriptive, and readable library that can be easily interpreted. 
-We have also thoroughly commented our implementation to make it easier to understand exactly how it works.
+We have modularized our mymalloc library with various helper functions and thoroughly commented the code in order to minimize code repetition and to ensure 
+a user-friendly, descriptive, and readable library that can be easily interpreted.
 
 Helper functions:
 void insertMetaData(void *memPtr, short chunkSize);
-  -takes void pointer to metadata in memory array and short int representing chunk size (parameters), casts the pointer to a short pointer, 
-  and then inserts the short int chunk size at the address of the 2 bytes
+    -takes void pointer to metadata in memory array and short int representing chunk size (parameters), casts the pointer to a short pointer, 
+    and then inserts the short int chunk size at the address of the 2 bytes
 short getChunkSize(void *memPtr);
-  -takes void pointer to metadata in memory array (parameter), casts to short int pointer, then reads the 2 bytes at the address as a short int, and returns it
+    -takes void pointer to metadata in memory array (parameter), casts to short int pointer, then reads the 2 bytes at the address as a short int, and returns it
 bool isChunkFree(void *memPtr);
-  -takes void pointer to metadata in memory array (parameter), reads data at address as short int, returns true if short int is positive (chunk is free)
-  or false if short int is negative (chunk is in-use)
+    -takes void pointer to metadata in memory array (parameter), reads data at address as short int, returns true if short int is positive (chunk is free)
+    or false if short int is negative (chunk is in-use)
 void initializeMemory();
-  -initializes all bytes in the memory array to 0 during the very first call to malloc(), and inserts appropriate metadata in the first 2 bytes
+    -initializes all bytes in the memory array to 0 during the very first call to malloc(), and inserts appropriate metadata in the first 2 bytes
 void *getNextChunk(void *memPtr);
-  -takes void pointer to a chunk's metadata in memory array (parameter), then copies that address to another pointer,
-  then adds the current chunk size + sizeof(short) to the pointer because that is where the next chunk's metadata will be located, then returns the pointer
+    -takes void pointer to a chunk's metadata in memory array (parameter), then copies that address to another pointer,
+    then adds the current chunk size + sizeof(short) to the pointer because that is where the next chunk's metadata will be located, then returns the pointer
 bool validPointer(void *memPtr);
-  -takes void pointer to some address (parameter), then checks if the address is within the bounds of the addresses of each byte of the memory array,
-  returns true if it is and false otherwise
+    -takes void pointer to some address (parameter), then checks if the address is within the bounds of the addresses of each byte of the memory array,
+    returns true if it is and false otherwise
 bool completePointer(void *memPtr);
-  -takes void pointer to some address (parameter), then checks if the pointer is the correct address which will be the first byte of the payload of a memory chunk
-  by subtracting sizeof(short) from the pointer and checking if the new pointer points to the metadata of a memory chunk 
+    -takes void pointer to some address (parameter), then checks if the pointer is the correct address which will be the first byte of the payload of a memory chunk
+    by subtracting sizeof(short) from the pointer and checking if the new pointer points to the metadata of a memory chunk 
 void memError(char* file, int line, int error);
-  -prints descriptive error message determined by the the integer "error" (parameter), indicating what error occurred, and in which file on which line it occurred
+    -prints descriptive error message determined by the the integer "error" (parameter), indicating what error occurred, and in which file on which line it occurred
 void printChunkSizes();
-  -iterates through each chunk of the memory array, printing each short integer representation of the metadata (chunk size). Was very useful for correctness testing.
+    -iterates through each chunk of the memory array, printing each short integer representation of the metadata (chunk size). Was very useful for correctness testing.
 
 mymalloc() implementation:
   First we check if the size parameter is 0 or less, and if it is then we print the appropriate error message and return NULL because it does
@@ -83,7 +82,7 @@ Test Plan:
       (9) Properly coalesces adjacent free chunks when possible
       (10) If there is memory remaining after malloc() requests bytes but not enough to allocate another chunk, should return entire memory chunk
       containing some extra memory to client
-  Specific methods to test for each property:
+ Specific methods to test for each property:
       (1) Allocate several, arbitrarily sized objects and check if each byte of each object can be properly written to, and then try using the data of those objects
       in another context.
       (2) Purposely attempt to free an already freed object, free an object with a pointer to the wrong address, free an object that was not allocated with malloc(),
@@ -106,20 +105,20 @@ Test Plan:
       (10) Allocate objects in such a way so that the final object allocated will result in 1-2 bytes remaining in memory. Then check to see if that object contains
       those extra bytes and attempt to write and use that data.
 
-memgrind: 
+memgrind implementation: 
   Our memgrind implementation takes no arguments
   In addition to the 3 tasks detailed in the assignment description, we have designed 2 tasks to test performance that do the following:
     task4(): Allocates all of memory in 30 byte chunks, frees all of the objects, and then requests allocation of an object larger than 30 bytes
-      This task tests how efficiently the memory chunks are freed and how the freed chunks coalesce. It also tests for correctness because the freed chunks
-      need to coalesce in order for the final larger object allocation to succeed.
+        This task tests how efficiently the memory chunks are freed and how the freed chunks coalesce. It also tests for correctness because the freed chunks
+        need to coalesce in order for the final larger object allocation to succeed.
     task5(): Randomly chooses between allocating a variable sized object or freeing an object if possible, until 64 objects have been allocated. Then the 
     remaining objects are freed.
-      This task tests performance similarly to all of the other tasks, but the randomness ensures that the sizes of each object are different which can
-      help prove the correctness of our library because it will reveal if the sizes of the chunks and its data remain as requested and expected.
+        This task tests performance similarly to all of the other tasks, but the randomness ensures that the sizes of each object are different which can
+        help prove the correctness of our library because it will reveal if the sizes of the chunks and its data remain as requested and expected.
   Our memgrind implementation runs each task 50 times, calculating the time spent on each task and printing that information out, and then finally the average
   time spent on each task is printed.
 
-test:
+test program implementation:
   We have included an additional test program called "test" that takes no arguments and will be compiled and made executable by the same Makefile
   The program allocates 8 equally sized, large objects (509 bytes) and then writes a unique byte pattern to each object
   Then the byte pattern of each object is printed to show whether writing to one object overwrote any of the other objects, and if the byte pattern
