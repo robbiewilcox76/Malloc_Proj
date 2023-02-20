@@ -37,7 +37,7 @@ void *getNextChunk(void *memPtr);
 bool validPointer(void *memPtr);
     -takes void pointer to some address (parameter), then checks if the address is within the bounds of the addresses of each byte of the memory array,
     returns true if it is and false otherwise
-bool completePointer(void *memPtr);
+bool goodPointer(void *memPtr);
     -takes void pointer to some address (parameter), then checks if the pointer is the correct address which will be the first byte of the payload of a memory chunk
     by subtracting sizeof(short) from the pointer and checking if the new pointer points to the metadata of a memory chunk 
 void memError(char* file, int line, int error);
